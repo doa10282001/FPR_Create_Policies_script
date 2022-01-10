@@ -67,7 +67,8 @@ def create_Policy(policy_name):
     return policy_UUID
 
 def create_network_object(name,ip_address, Description = None):
-    url = 'https://192.168.95.240/api/fmc_config/v1/domain/' + Domain_UUID + '/object/networks'
+    api_path = '/api/fmc_config/v1/domain/' + Domain_UUID + '/object/networks'
+    url = Server_url + api_path
     post_data = {
         "name": name,
         "value": ip_address,
@@ -159,10 +160,10 @@ def addACRule(policy_UUID,Policies_name,Source_name,Destination_name,port_name,a
         print(add_ACL.status_code,'\n')
         print(add_ACL.text)
 
-FMC_Addr = '192.168.95.240'
+FMC_Addr = 'Your FMC Address'
 Server_url = 'https://' + FMC_Addr
-username = 'admin'
-password = 'Admin123'
+username = 'FMCUsername'
+password = 'FMCPassword'
 r = requests.session()
 fmc_gen_token(username,password)
 
