@@ -304,20 +304,3 @@ for i in range(2, add_AC_Rule_row + 1):
     action = add_AC_rule.cell(i, 5).value
     addACRule(Policies_name,Source_name,Destination_name,port_name,action)
 
-'''
-try:
-    policy_UUID
-except:
-    try:
-        get_current_Policy_UUID()
-        choiced = input('please type in 1 to copy and paste which one ID you choiced or 2 to create NEW policies:\n')
-        if choiced == "1":
-            policy_UUID = input('please copy and paste the policy UUID:\n')
-        else:
-            policy_name = input('please type in the policy Name:\n')
-            policy_UUID = create_Policy(policy_name)
-    except:
-        print('you must to create Access list Policies')
-        policy_name = input('please type in the policy Name:\n')
-        policy_UUID = create_Policy(policy_name)
-'''
