@@ -94,26 +94,43 @@ def add_Device(Device_name,host_name,reg_Key,natID=None):
     #global Device_UUID
     api_path = '/api/fmc_config/v1/domain/e276abec-e0f2-11e3-8169-6d9ed49b625f/devices/devicerecords'
     url = Server_url + api_path
-    if natID == None:
-        post_data = {
-            "name": Device_name,
-            "hostName": host_name,
-            "regKey": reg_Key,
-            "type": "Device",
-            "license_caps": [
-                "BASE",
-                "MALWARE",
-                "URLFilter",
-                "THREAT"
-                ],
-            "accessPolicy": {
-                "id": policy_UUID,
-                "type": "AccessPolicy"
-                }
+    post_data = {
+       "name": Device_name,
+       "hostName": host_name,
+       "regKey": reg_Key,
+       "type": "Device",
+       "license_caps": [
+           "BASE",
+           "MALWARE",
+           "URLFilter",
+           "THREAT"
+           ],
+       "accessPolicy": {
+           "id": policy_UUID,
+           "type": "AccessPolicy"
+           }
+       }
+        api_path = '/api/fmc_config/v1/domain/e276abec-e0f2-11e3-8169-6d9ed49b625f/devices/devicerecords'
+    url = Server_url + api_path
+    post_data = {
+        "name": Device_name,
+        "hostName": host_name,
+        "regKey": reg_Key,
+        "type": "Device",
+        "license_caps": [
+            "BASE",
+            "MALWARE",
+            "URLFilter",
+            "THREAT"
+            ],
+        "accessPolicy": {
+            "id": policy_UUID,
+            "type": "AccessPolicy"
             }
-    else:
+        }
+    if natID != None:
         post_data['natID'] = natID
-
+        
     Device_Add = r.post(url, data=json.dumps(post_data), headers=headers, verify=False)
     '''
     try:
