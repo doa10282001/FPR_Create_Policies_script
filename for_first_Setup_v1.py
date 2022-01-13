@@ -1,3 +1,6 @@
+
+#using this script with the excel file name Setup_INFO.xslx
+
 import requests
 import json
 from requests.auth import HTTPBasicAuth
