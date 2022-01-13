@@ -78,8 +78,8 @@ def port_object(port_name):
     for i in port_info_json['items']:
         if port_name == i['name']:
             protocol_url = i['links']['self']
-            port_info_d = r.get(url, headers = headers, verify = False)
-            json_port_info_d = json.loads(json_port_info_d)
+            port_info_d = r.get(protocol_url, headers = headers, verify = False)
+            json_port_info_d = json.loads(port_info_d.text)
             return {
                 'type':json_port_info_d['type'],
                 'protocol':json_port_info_d['protocol'],
