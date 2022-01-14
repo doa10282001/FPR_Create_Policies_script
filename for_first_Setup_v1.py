@@ -1,6 +1,3 @@
-
-#using this script with the excel file name Setup_INFO.xslx
-
 import requests
 import json
 from requests.auth import HTTPBasicAuth
@@ -58,7 +55,6 @@ def get_INT_UUID(Interface_Name):
     except:
         return False
 
-
 def get_Network_object_ID(net_name) -> dict:
     api_path = '/api/fmc_config/v1/domain/' + Domain_UUID +'/object/networks'
     get_ID_json = get_url_data(api_path)
@@ -90,27 +86,19 @@ def port_object(port_name):
                 'id':json_port_info_d['id']
             }
 
+def get_ICMP_UUID():
+    api_path = '/api/fmc_config/v1/domain/e276abec-e0f2-11e3-8169-6d9ed49b625f/object/icmpv4objects'
+    ICMP_UUID_json = get_url_data(api_path)
+    for i in ICMP_UUID_json['items']:
+        if i['name'] == "icmpv4_obj1":
+            return { "type": i['type'],
+                     "id" : i['id']}
+
+#======================================================================================================
+
 def add_Device(Device_name,host_name,reg_Key,natID=None):
     #global Device_UUID
-    api_path = '/api/fmc_config/v1/domain/e276abec-e0f2-11e3-8169-6d9ed49b625f/devices/devicerecords'
-    url = Server_url + api_path
-    post_data = {
-       "name": Device_name,
-       "hostName": host_name,
-       "regKey": reg_Key,
-       "type": "Device",
-       "license_caps": [
-           "BASE",
-           "MALWARE",
-           "URLFilter",
-           "THREAT"
-           ],
-       "accessPolicy": {
-           "id": policy_UUID,
-           "type": "AccessPolicy"
-           }
-       }
-        api_path = '/api/fmc_config/v1/domain/e276abec-e0f2-11e3-8169-6d9ed49b625f/devices/devicerecords'
+    api_path = '/api/fmc_config/v1/domain/' + Domain_UUID + '/devices/devicerecords'
     url = Server_url + api_path
     post_data = {
         "name": Device_name,
@@ -130,7 +118,7 @@ def add_Device(Device_name,host_name,reg_Key,natID=None):
         }
     if natID != None:
         post_data['natID'] = natID
-        
+
     Device_Add = r.post(url, data=json.dumps(post_data), headers=headers, verify=False)
     '''
     try:
@@ -199,11 +187,32 @@ def create_network_object(name,ip_address, Description = None):
         "name": name,
         "value": ip_address,
         "overridable": False,
-        "description": Description,
         "type": "Network"
         }
-    post_url_data(ip_address, api_path, post_data)
+    if Description != "None":
+        post_data["description"] = Description
+    post_url_data(name, api_path, post_data)
     #json_Create_Network_object = json.loads(Create_Network_object.text)
+
+def create_Networkgroups_object(name, post_data):
+    api_path = '/api/fmc_config/v1/domain/' + Domain_UUID + '/object/networkgroups'
+    post_url_data(name, api_path, post_data)
+
+def create_port_object(name, protocol, port, Description = None):
+    api_path = '/api/fmc_config/v1/domain/' + Domain_UUID + '/object/protocolportobjects'
+    post_data = {
+        "name": name,
+        "protocol": protocol,
+        "port": port,
+        "type": "ProtocolPortObject"
+    }
+    if Description != "None":
+        post_data['Description'] = Description
+    post_url_data(name, api_path, post_data)
+
+def create_PortGroup_object():
+    api_path = '/api/fmc_config/v1/domain/' + Domain_UUID + '/object/portobjectgroups'
+    post_url_data(name, api_path, post_data)
 
 def addACRule(Policies_name,sourcezonename,Source_name,destinationzonename,Destination_name,port_name,action):
     api_path = '/api/fmc_config/v1/domain/' + Domain_UUID + '/policy/accesspolicies/' + policy_UUID + '/accessrules'
@@ -318,34 +327,34 @@ def assign_zones(ifname, Interface_Name, Zone_Name):
     else:
         print(int_Zones.text)
 
-def column_len4_fordef(i,var1,var2,var3,var4,vars):
-    var1 = vars.cell(i,  1).value
-    var2 = vars.cell(i,  2).value
-    var3 = vars.cell(i,  3).value
-    var4 = vars.cell(i,  4).value
-    return [var1,var2,var3,var4]
+def column_len2_fordef(i, var1, var2,vars):
+    var1 = vars.cell(i, 1).value
+    var2 = vars.cell(i, 2).value
+    return [var1, var2]
 
-def column_len2_fordef(i,var1,var2,vars):
-    var1 = vars.cell(i,  1).value
-    var2 = vars.cell(i,  2).value
-    return [var1,var2]
+def column_len3_fordef(i, var1, var2, var3 ,vars):
+    var1 = vars.cell(i, 1).value
+    var2 = vars.cell(i, 2).value
+    var3 = vars.cell(i, 3).value
+    return [var1, var2, var3]
+
+def column_len4_fordef(i, var1, var2, var3, var4, vars):
+    var1 = vars.cell(i, 1).value
+    var2 = vars.cell(i, 2).value
+    var3 = vars.cell(i, 3).value
+    var4 = vars.cell(i, 4).value
+    return [var1, var2, var3, var4]
 
 file = r'C:\Users\Ein Lin\Desktop\python\FirePower\Setup_INFO.xlsx'
-wb = openpyxl.load_workbook(file)
-ex_device_info = wb.worksheets[0]
-ex_add_devices = wb.worksheets[1]
-ex_zones_name = wb.worksheets[2]
-ex_assign_zone = wb.worksheets[3]
-ex_add_AC_Rule = wb.worksheets[4]
-ex_device_info_row = ex_device_info.max_row
-ex_add_devices_row = ex_add_devices.max_row
-ex_zones_name_row = ex_zones_name.max_row
-ex_assign_zone_row = ex_assign_zone.max_row
-ex_add_AC_Rule_row = ex_add_AC_Rule.max_row
 
+wb = openpyxl.load_workbook(file)
+
+ex_device_info = wb.worksheets[0]
+ex_device_info_row = ex_device_info.max_row
 for i in range(2,ex_device_info_row + 1):
     ex_device_info_list = column_len4_fordef(i,'FMC_Addr','username','password','policy_name',ex_device_info)
 
+#login Device get token
 Server_url = 'https://' + ex_device_info_list[0]
 r = requests.session()
 fmc_gen_token(ex_device_info_list[1],ex_device_info_list[2])
@@ -354,6 +363,9 @@ print('FMC current Version :',get_version())
 policy_UUID = create_Policy(ex_device_info_list[3])
 time.sleep(5)
 
+#add Device , first FTD need to "config manage add..."
+ex_add_devices = wb.worksheets[1]
+ex_add_devices_row = ex_add_devices.max_row
 for i in range(2,ex_add_devices_row + 1):
     add_device_para = column_len4_fordef(i, 'Device_Name','host_name','reg_Key','natID',ex_add_devices)
     #add Device , you need type in command 'config manager add FMC_add regKey' in FTD first
@@ -362,23 +374,98 @@ for i in range(2,ex_add_devices_row + 1):
     else:
         Device_UUID = add_Device(add_device_para[0], add_device_para[1], add_device_para[2], add_device_para[3])
 
+#create zone
+ex_zones_name = wb.worksheets[2]
+ex_zones_name_row = ex_zones_name.max_row
 time.sleep(3)
 for i in range(2, ex_zones_name_row +1 ):
     zone_name_para = column_len2_fordef(i, 'zone_name', 'interfaceMode', ex_zones_name)
     Create_Zones(zone_name_para[0],zone_name_para[1])
-'''
-for i in range(2, assign_zone_row +1 ):
-    assign_zone_para = column_len2_fordef(i, 'interface_name', 'zone_name',assign_zone)
-    assign_zones(assign_zone_para[0], assign_zone_para[1])
-    time.sleep(1)
-'''
+
+#assign interface to zone
+ex_assign_zone = wb.worksheets[3]
+ex_assign_zone_row = ex_assign_zone.max_row
 for i in range(2, ex_assign_zone_row + 1):
-    ex_Port_ID = ex_assign_zone.cell(i, 1).value
-    ex_zone_name = ex_assign_zone.cell(i, 2).value
-    ex_if_name = ex_assign_zone.cell(i, 3).value
-    assign_zones(ex_if_name, ex_Port_ID, ex_zone_name)
+    assign_zone_para = column_len3_fordef(i, 'Port_ID', 'zone_name', 'Description',ex_assign_zone)
+    if assign_zone_para[2] == 'None':
+        assign_zones(assign_zone_para[0], assign_zone_para[1])
+    else:
+        assign_zones(assign_zone_para[0], assign_zone_para[1], assign_zone_para[2])
     time.sleep(1)
 
+#create network object , support network, range, host
+ex_network = wb.worksheets[4]
+ex_network_row = ex_network.max_row
+for i in range(2, ex_network_row + 1):
+    add_network_para = column_len3_fordef(i, 'network_name', 'network_ip', 'Description',ex_network)
+    if add_network_para[2] == 'None':
+        create_network_object(add_network_para[0], add_network_para[1])
+    else:
+        create_network_object(add_network_para[0], add_network_para[1], add_network_para[2])
+
+#create network group objects
+ex_networkGroups = wb.worksheets[5]
+ex_networkGroups_row = ex_networkGroups.max_row
+ex_networkGroups_col = ex_networkGroups.max_column
+for i in range(2, ex_networkGroups_row + 1):
+    name = ex_networkGroups.cell(i, 1).value
+    post_data = {
+        "name": name,
+        "objects":[]
+        }
+    for j in range(2,ex_networkGroups_col + 1):
+        object_IP_name = ex_networkGroups.cell(i, j).value
+        if object_IP == None:
+            break
+        else:
+            group_object = get_Network_object_ID(object_IP_name )
+            group_object.pop('name')
+            post_data["objects"].append(group_object)
+            #post_data["objects"].append(dict(zip(object_key,object_group)))
+    create_Networkgroups_object(name, post_data)
+
+#create Protocol port
+ex_Protocol = wb.worksheets[6]
+ex_Protocol_row = ex_Protocol.max_row
+for i in range(2, ex_Protocol_row + 1):
+    add_port_para = column_len4_fordef(i, 'port_name','port_protocol','port','Description',ex_Protocol)
+    if add_port_para[3] == 'None':
+        create_port_object(add_port_para[0], add_port_para[1], add_port_para[2])
+    else:
+        create_port_object(add_port_para[0], add_port_para[1], add_port_para[2], add_port_para[3])
+
+ex_protocolGroups = wb.worksheets[7]
+ex_protocolGroups_row = ex_protocolGroups.max_row
+ex_protocolGroups_col = ex_protocolGroups.max_column
+for i in range(2, ex_protocolGroups_row + 1):
+    name = ex_protocolGroups.cell(i, 1).value
+    post_data = {
+        "name": name,
+        "objects":[]
+        }
+    for j in range(2,ex_protocolGroups_col + 1):
+        object_port_name = ex_protocolGroups.cell(i, j).value
+        if object_port_name == None:
+            break
+        else:
+            if object_port_name != 'ICMP':
+                group_port_object = port_object(object_port_name)
+                group_port_object.pop('name')
+                group_port_object.pop('protocol')
+                post_data["objects"].append(group_port_object)
+            else:
+                group_port_object = get_ICMP_UUID()
+                post_data["objects"].append(group_port_object)
+    create_Networkgroups_object(name, post_data)
+
+ex_urlObjects = wb.worksheets[8]
+ex_urlObjects_row = ex_urlObjects.max_row
+
+ex_urlGroups = wb.worksheets[9]
+ex_urlGroups_row = ex_urlGroups.max_row
+
+ex_add_AC_Rule = wb.worksheets[10]
+ex_add_AC_Rule_row = ex_add_AC_Rule.max_row
 time.sleep(3)
 for i in range(2, ex_add_AC_Rule_row + 1):
     ex_Policies_name = ex_add_AC_Rule.cell(i, 1).value
