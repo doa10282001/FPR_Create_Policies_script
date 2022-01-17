@@ -238,7 +238,7 @@ def create_port_object(name, protocol, port, Description = None):
         post_data['Description'] = Description
     post_url_data(name, api_path, post_data)
 
-def create_PortGroup_object():
+def create_PortGroup_object(name, post_data):
     api_path = '/api/fmc_config/v1/domain/' + Domain_UUID + '/object/portobjectgroups'
     post_url_data(name, api_path, post_data)
 
@@ -561,7 +561,7 @@ for i in range(2, ex_protocolGroups_row + 1):
             else:
                 group_port_object = get_ICMP_UUID()
                 post_data["objects"].append(group_port_object)
-    create_Networkgroups_object(name, post_data)
+    create_PortGroup_object(name, post_data)
 
 ex_urlObjects = wb.worksheets[8]
 ex_urlObjects_row = ex_urlObjects.max_row
@@ -589,8 +589,8 @@ for i in range(2, ex_urllGroups_row + 1):
         else:
             group_url_object = get_url_object_ID(object_url_name )
             post_data["objects"].append(group_url_object)
-    create_Networkgroups_object(name, post_data)
-
+    urls_group(name, post_data)
+    
 ex_add_AC_Rule = wb.worksheets[10]
 ex_add_AC_Rule_row = ex_add_AC_Rule.max_row
 time.sleep(3)
